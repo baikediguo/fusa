@@ -1,2 +1,56 @@
 # fusa
 Functional safety evaluations for ML accelerators
+
+
+Objective:
+1. Goal: To evaluate the functional safety of an AI accelerator by measuring the proportion of "unsafe" faults through fault - injection experiments.
+2. Criterion: If the inference accuracy under fault is over 90%, the fault is "safe"; otherwise, it's "unsafe".
+3. Challenge: The AI accelerator's enormous fault space makes full - scale fault simulation impossible. Thus, only a subset of faults (e.g., single processing element - PE) can be statistically analyzed to infer the global situation.
+
+4.  Experimental Environment :
+• Automatically extract candidate fault points (e.g., nodes of combinatorial logic gates) from the gate - level netlist of a single PE.
+• Batch - inject stuck - at faults and calculate the root - mean - square error (RMSE) for each node.
+• Identify the "critical fault set" (FS) with RMSE above the threshold.
+• Perform subsequent whole - accelerator - level simulation (input inference and accuracy evaluation) by assuming the code can load and run the entire accelerator model.
+• Use the output RMSE and FS as a measure of fault impact.
+
+Plan A: Install Mingw - w64 (the plan adopted in this experiment)
+• Install Mingw - w64 (or TDM - GCC, or gcc from MSYS2).
+• After installation, add cpp.exe (usually in the mingw64\bin directory) to the PATH environment variable.
+• Reopen the command line to check if cpp --version works.
+
+Plan B: Use WSL (Windows Subsystem for Linux) or Linux/Mac Environment
+• Pyverilog runs more smoothly on Linux/Mac as cpp is pre - installed.
+
+Plan C: Utilize WSL (Windows Subsystem for Linux)
+• In WSL, Verilator, cocotb, make, and g++ can be set up with one - click installation.
+• You can edit code, run simulations, and execute Python scripts in WSL without needing Mingw - w64.
+(For Pure Windows Environment, Python 3.6+ is Required)
+
+I. Correct Steps to Install MinGW - w64
+1. Download the Pre - Compiled Binary Package (Recommended)
+Visit the following link to download the pre - compiled version: Unfortunately, the access to 
+https://github.com/niXman/mingw - builds - binaries/releases/download/13.2.0 - rt_v11 - rev1/x86_64 - 13.2.0 - release - posix - seh - ucrt - rt_v11 - rev1.7z  was not successful due to network issues. If you need to access this webpage, please check the validity of the link and try again.
+2. Unzip and Install
+Unzip the file to C:\mingw64 or your preferred directory.
+3. Set Environment Variables
+Press Win + R, input sysdm.cpl, and hit Enter to open System Properties.
+Go to the "Advanced" tab > "Environment Variables".
+Under "System variables", find Path and click "Edit".
+Add a new path: C:\mingw64\bin.
+Click OK to save all changes.
+4. Verify Installation
+Open a new command prompt:
+cmd
+gcc --version
+cpp --version
+g++ --version
+It should display something like:
+gcc (x86_64 - posix - seh - rev1, Built by MinGW - Builds project) 13.2.0
+
+II. Installing Icarus Verilog (iverilog) on Windows
+1. Visit the official Icarus Verilog website.
+2. Download the latest Windows installer (e.g., iverilog - v12 - 20240116 - x64_setup.exe).
+3. Run the installer and make sure to select the "Add to PATH" option.
+4. Restart your system upon completion.
+5. To verify the installation: In cmd, run iverilog -v.
