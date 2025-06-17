@@ -68,4 +68,4 @@ Principle:   RMSE = sqrt(mean((faulty_output - golden_output)^2))
 This Python script reads simulation output logs from both golden (fault-free) and fault-injected runs, compares the numerical results, and computes the RMSE (Root Mean Square Error) for each fault. It is designed to automate the analysis of digital circuit fault injection experiments.
 
 **Note:**  
-This script is intended for use with log files where each line contains a field like `o_sum= ...`, as produced by the recommended Verilog testbench.
+Place gatesa_fault_injection.py (fault injection automation code), pe.synth_dct.v (gate-level netlist), and tb.v (testbench content) in the same directory.  This script is intended for use with log files where each line contains a field like `o_sum= ...`, as produced by the recommended Verilog testbench.
