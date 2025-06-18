@@ -25,7 +25,7 @@ Step 1: Scan the gate-level netlist (pe.synth_dct.v) and generate cells.v code (
 
 
 
-Step 2: Testbench load (code in tb.v)
+Step 2: Testbench load (code in testbench.v)
 The role of the testbench is to:
 
 • Apply input stimulus signals to the circuit
