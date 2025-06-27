@@ -49,7 +49,7 @@ Evaluation:
     * Generates behavioral Verilog models for each cell type based on predefined templates
     * Preserves original port ordering for LEC compatibility
     * Handles special register outputs for sequential elements
-
+![Image](https://github.com/user-attachments/assets/8b267698-610a-424f-a8d3-e5c0aae08869)
 ## Step 2: Testbench Initialization
    Requirements:
    * Place cells.v and tb.v in the same directory
@@ -69,7 +69,7 @@ Evaluation:
    * Automatic fault target extraction from netlist
    * Stuck-at fault injection (0/1) on all cell outputs
    * Parallel simulation of faulty circuits
-
+![Image](https://github.com/user-attachments/assets/c6d6474c-b751-41e4-a8d2-65b30cc8356e)
 
 ## Step 4: RMSE calculation 
    Script: cal_rmse_fault.py
@@ -80,6 +80,7 @@ Evaluation:
 
    Output Files:
    * rmse_results.csv - Structured data with columns
+![Image](https://github.com/user-attachments/assets/96794db8-70b2-46b4-9fff-afee700546db)
 
 ## Step 5: Fault Coverage Analysis
    Script Function: calc_fault_coverage.py
@@ -88,5 +89,5 @@ Evaluation:
    * Identifies sensitive paths as faults whose RMSE exceeds a predefined threshold.
    * Computes coverage as the ratio of critical faults to total injected faults.
    * Outputs both the coverage percentage and a list of critical faults (saved to critical_fs.txt)".
- 
+ ![Image](https://github.com/user-attachments/assets/407e2ed1-79fc-4acb-9f17-278fe03e2690)
        
