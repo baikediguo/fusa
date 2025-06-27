@@ -31,7 +31,9 @@ Evaluation:
 
 ## Environment Setup Notes
 For a quick setup, you can use the following command to install all dependencies at once:
+
 pip install -r requirements.txt
+
 Alternatively, if you prefer to install the dependencies step-by-step, please follow the instructions below:
 * [Pyverilog](https://github.com/PyHDI/Pyverilog): `pip install pyverilog`
 * [iVerilog](https://steveicarus.github.io/iverilog/)
