@@ -1,59 +1,98 @@
 import glob
+import os
 import math
 import re
+import csv
+
 
 def read_log(filename):
+    """
+    Parse simulation log file to extract numerical output values.
+    Args:
+        filename (str): Path to log file
+    Returns:
+        list: Extracted numerical values, NaN for invalid entries
+    """
     result = []
-    pat = re.compile(r"o_sum=\s*(\S+)")
-    with open(filename, 'r') as f:
-        for line in f:
-            m = pat.search(line)
-            if not m:
-                continue
-            val = m.group(1)
-            if val == 'X':
-                result.append(float('nan'))
-            else:
-                try:
-                    result.append(float(val))
-                except:
-                    result.append(float('nan'))  # 用nan表示X
+    pat = re.compile(r"(o_sum|OUTPUT|result)\s*[=:]\s*(0x)?([0-9a-fA-F]+)", re.IGNORECASE)
+    try:
+        with open(filename, 'r') as f:
+            for line in f:
+                m = pat.search(line)
+                if m:
+                    try:
+                        base = 16 if m.group(2) else 10
+                        result.append(int(m.group(3), base))
+                    except ValueError:
+                        result.append(float('nan'))
+    except FileNotFoundError:
+        print(f"❌ File not found: {filename}")
     return result
 
-if __name__ == "__main__":
-    WORK = 'work.nogit'
-    log_files = glob.glob(f'{WORK}/fault_*.log')
-    # 排除golden文件
-    log_files = [f for f in log_files if f != f'{WORK}/golden_sim_output.log']
-    golden_file = f'{WORK}/golden_sim_output.log'
+
+def compute_rmse(golden, faulty):
+    """
+    Calculate RMSE between golden and faulty outputs.
+    Args:
+        golden (list): Reference values
+        faulty (list): Faulty values
+    Returns:
+        tuple: (RMSE value, valid comparison count)
+    """
+    minlen = min(len(golden), len(faulty))
+    valid_pairs = [(g, f) for g, f in zip(golden[:minlen], faulty[:minlen])
+                   if not math.isnan(g) and not math.isnan(f)]
+    if not valid_pairs:
+        return None, 0
+    return math.sqrt(sum((g - f) ** 2 for g, f in valid_pairs) / len(valid_pairs)), len(valid_pairs)
+
+
+def main():
+    log_dir = os.path.join(os.getcwd(), 'sim_logs')
+    golden_file = os.path.join(log_dir, 'golden.log')
+
+    # Validate golden log
+    if not os.path.exists(golden_file):
+        print(f"❌ Golden log not found: {golden_file}")
+        return
 
     golden = read_log(golden_file)
     if not golden:
-        print("golden_sim_output.log没有可用数据！")
-        exit(1)
+        print("❌ No valid data in golden log")
+        return
 
-    print("{:<48s}{}  |  有效对比行数".format("故障点", "RMSE"))
-    print("="*65)
+    # Process fault logs
+    results = []
+    log_files = [f for f in glob.glob(os.path.join(log_dir, 'fault_*.log'))
+                 if not f.endswith('golden.log')]
+
+    print("{:<50s} {:>12s}  |  {:s}".format("Fault", "RMSE", "Valid Points"))
+    print("=" * 72)
+
     for lf in sorted(log_files):
-        fault_name = lf.replace('fault_', '').replace('.log', '')
+        fault_name = os.path.basename(lf).replace('.log', '')
         vals = read_log(lf)
-        if len(vals) != len(golden):
-            print("{:<48s}{}".format(fault_name, "数据长度不一致"))
+
+        if not vals:
+            print(f"{fault_name:<50s} {'No Data':>12}")
+            results.append([fault_name, float('nan'), 0])
             continue
-        # 对比并过滤掉无效行
-        valid_pairs = [(a, b, idx) for idx, (a, b) in enumerate(zip(vals, golden)) if not math.isnan(a) and not math.isnan(b)]
-        if not valid_pairs:
-            print("{:<48s}{}".format(fault_name, "无有效数据"))
-            continue
-        # 计算RMSE
-        rmse = sum((a-b)**2 for a, b, _ in valid_pairs) / len(valid_pairs)
-        rmse = rmse ** 0.5
-        print("{:<48s}{:.4f}  |  {:d}".format(fault_name, rmse, len(valid_pairs)))
-        # 若有差异，输出详细信息
-        diff_cnt = 0
-        for a, b, idx in valid_pairs:
-            if a != b:
-                print(f"  [line {idx+1:03d}]  fault={a:.0f}  golden={b:.0f}  diff={a-b:.0f}")
-                diff_cnt += 1
-        if diff_cnt == 0:
-            print("  所有有效行均一致")
+
+        rmse, count = compute_rmse(golden, vals)
+        if rmse is None:
+            print(f"{fault_name:<50s} {'Invalid':>12}")
+            results.append([fault_name, float('nan'), 0])
+        else:
+            print(f"{fault_name:<50s} {rmse:12.4f}  |  {count:<6d}")
+            results.append([fault_name, rmse, count])
+
+    # Save results
+    with open('rmse_results.csv', 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(['fault_name', 'rmse', 'valid_points'])
+        writer.writerows(results)
+    print("\n✅ Results saved to rmse_results.csv")
+
+
+if __name__ == "__main__":
+    main()
