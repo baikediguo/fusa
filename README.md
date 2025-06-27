@@ -30,11 +30,13 @@ Evaluation:
 
 
 ## Environment Setup Notes
-
+For a quick setup, you can use the following command to install all dependencies at once:
+pip install -r requirements.txt
+Alternatively, if you prefer to install the dependencies step-by-step, please follow the instructions below:
 * [Pyverilog](https://github.com/PyHDI/Pyverilog): `pip install pyverilog`
 * [iVerilog](https://steveicarus.github.io/iverilog/)
 * On Windows: Use [mingw-w64](https://www.mingw-w64.org) or [WSL](https://learn.microsoft.com/en-us/windows/wsl/install)
-* Technology libraries need to be downloaded separately:
+* Technology libraries need to be downloaded separately (Optional):
   * Synopsys Educational Design Kit (SAED90nm)
   * [Nangate Open Cell Library](https://github.com/JulianKemmerer/Drexel-ECEC575/tree/master/Encounter/NangateOpenCellLibrary)
 
